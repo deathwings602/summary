@@ -1,10 +1,12 @@
 #! /bin/bash
 
 MASTER_ADDR=localhost
-MASTER_PORT=13576
+MASTER_PORT=13591
 NNODES=1
 NODE_RANK=0
-GPUS_PER_NODE=2
+GPUS_PER_NODE=4
+
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 DISTRIBUTED_ARGS="--nproc_per_node $GPUS_PER_NODE \
                   --nnodes $NNODES \
@@ -13,7 +15,7 @@ DISTRIBUTED_ARGS="--nproc_per_node $GPUS_PER_NODE \
                   --master_port $MASTER_PORT"
 
 BASE_PATH=$(cd $(dirname "${BASH_SOURCE[0]}") >/dev/null && pwd)
-DATASET="LCSTS"
+DATASET="LCSTSW"
 LR=1e-1
 
 OPTS=""
@@ -22,10 +24,10 @@ OPTS+=" --data-path ${CPM_TRAIN_DATA_PATH}"
 OPTS+=" --dataset ${DATASET}"
 OPTS+=" --base-path ${BASE_PATH}"
 OPTS+=" --model-config ${CPM_CACHE_PATH}/cpm1-small"
-OPTS+=" --batch-size 256"
+OPTS+=" --batch-size 64"
 OPTS+=" --train-iters 600000"
 OPTS+=" --save-iters 100000"
-OPTS+=" --max-length 256"
+OPTS+=" --max-length 512"
 OPTS+=" --save ${BASE_PATH}/results"
 OPTS+=" --save-name finetune-cpm1-ckpt-lr${LR}"
 OPTS+=" --lr ${LR}"

@@ -104,7 +104,7 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, dataset):
         "dev": DistributedDataLoader(dataset['dev'], batch_size=args.batch_size, shuffle=False),
     }
 
-    for epoch in range(100):
+    for epoch in range(10):
         model.train()
         for it, data in enumerate(dataloader['train']):
             input_tokens = data["input_tokens"].cuda()

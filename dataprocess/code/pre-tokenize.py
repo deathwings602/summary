@@ -1,3 +1,4 @@
+from asyncore import poll
 import json
 import argparse
 import os
@@ -37,6 +38,43 @@ class LCSTSProcess(Process):
 				for i, line in enumerate(fin):
 					work(i, line)
 
+
+class LCSTSWProcess(Process):
+	def __init__(self, args, num, start, end):
+		super(LCSTSWProcess, self).__init__()
+		self.args = args
+		self.num = num
+		self.start_pos = start
+		self.end_pos = end
+
+	def run(self):
+		args = self.args
+		tokenizer = CPM1Tokenizer.from_pretrained_simple(args.model_config, cache_path=args.cache_path)
+		file_path = os.path.join(args.data_dir, args.dataset, args.file_name)
+		output_file_path = os.path.join(args.output_dir, args.dataset, f'{args.file_name}.{self.num}.tmp')
+		with open(file_path, encoding='utf8') as fin, open(output_file_path, 'w', encoding='utf8') as fout:
+			def work(i, line):
+				if self.start_pos <= i and i < self.end_pos:
+					line_json = json.loads(line) 
+					summary = line_json['summary']
+					text = line_json['text']
+					polluted_summary = line_json['polluted-summary']
+					lef_tokens, rig_tokens = my_tokenize(summary, text, polluted_summary, tokenizer, args.max_length)
+					result = {'lef_tokens': lef_tokens, 'rig_tokens': rig_tokens}
+					fout.write(json.dumps(result, ensure_ascii=False) + '\n')
+
+			if self.num == 0:
+				for i, line in tqdm(enumerate(fin)):
+					work(i, line)
+			else:
+				for i, line in enumerate(fin):
+					work(i, line)
+
+def my_tokenize(summary, text, polluted_summary,tokenizer, max_length):
+	lef_tokens = [1] + tokenizer.encode(polluted_summary) + [3] + tokenizer.encode(text)[: max_length] + [2]
+	rig_tokens = tokenizer.encode(summary) + [tokenizer.eod_id]
+
+	return lef_tokens, rig_tokens
 
 class CNewSumProcess(Process):
 	def __init__(self, args, num, start, end):
@@ -115,6 +153,8 @@ def main():
 	for i in range(args.process_num):
 		if args.dataset == 'LCSTS':
 			p = LCSTSProcess(args, i, line_num_per_process * i, line_num_per_process * (i+1))
+		if args.dataset == 'LCSTSW':
+			p = LCSTSWProcess(args, i, line_num_per_process * i, line_num_per_process * (i+1))
 		elif args.dataset == 'CNewSum':
 			p = CNewSumProcess(args, i, line_num_per_process * i, line_num_per_process * (i+1))
 		else:
