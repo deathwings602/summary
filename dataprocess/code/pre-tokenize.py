@@ -131,7 +131,7 @@ def get_args():
 
 
 def tokenize(summary, text, tokenizer, max_length):
-	lef_tokens = [1] + tokenizer.encode('“') + tokenizer.encode(text)[:max_length] + tokenizer.encode('”的摘要是:')
+	lef_tokens = [1] + tokenizer.encode(text)[:max_length] + [2]
 	rig_tokens = tokenizer.encode(summary) + [tokenizer.eod_id]
 
 	return lef_tokens, rig_tokens
@@ -151,9 +151,9 @@ def main():
 	line_num_per_process = (total_line_num + args.process_num - 1) // args.process_num
 	process_list = []
 	for i in range(args.process_num):
-		if args.dataset == 'LCSTS':
+		if args.dataset == 'LCSTS' or args.dataset == "LCSTSF":
 			p = LCSTSProcess(args, i, line_num_per_process * i, line_num_per_process * (i+1))
-		if args.dataset == 'LCSTSW':
+		elif args.dataset == 'LCSTSW':
 			p = LCSTSWProcess(args, i, line_num_per_process * i, line_num_per_process * (i+1))
 		elif args.dataset == 'CNewSum':
 			p = CNewSumProcess(args, i, line_num_per_process * i, line_num_per_process * (i+1))
