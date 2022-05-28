@@ -21,6 +21,9 @@ class CNewSum_Dataset(torch.utils.data.Dataset):
 					lef_tokens = line_json['lef_tokens']
 					rig_tokens = line_json['rig_tokens']
 
+					if (len(lef_tokens) + len(rig_tokens)) > max_length:
+						pass
+
 					input_tokens, input_length, context, input_span, target, target_length = self.make_input(lef_tokens, rig_tokens, max_length, tokenizer)
 
 					self.data.append({

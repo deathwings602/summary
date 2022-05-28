@@ -68,9 +68,9 @@ class CNewSum_Dataset(torch.utils.data.Dataset):
 
 
 class LCSTS_Dataset(torch.utils.data.Dataset):
-	def __init__(self, path, split, rank, world_size, tokenizer, max_length) -> None:
+	def __init__(self, path, dataset, split, rank, world_size, tokenizer, max_length) -> None:
 		self.data = []
-		path = f"{path}/LCSTS/{split}.jsonl"
+		path = f"{path}/{dataset}/{split}.jsonl"
 		bmt.print_rank(f"Start loading dataset {path}")
 		if split == 'test':
 			pass
@@ -82,6 +82,9 @@ class LCSTS_Dataset(torch.utils.data.Dataset):
 					line_json = json.loads(line)
 					lef_tokens = line_json['lef_tokens']
 					rig_tokens = line_json['rig_tokens']
+     
+					if (len(lef_tokens) + len(rig_tokens)) >= max_length:
+						continue
 
 					input_tokens, input_length, context, input_span, target, target_length = self.make_input(lef_tokens, rig_tokens, max_length, tokenizer)
 
@@ -131,5 +134,6 @@ class LCSTS_Dataset(torch.utils.data.Dataset):
 
 DATASET = {
 	"LCSTS": LCSTS_Dataset,
+	"LCSTSF": LCSTS_Dataset,
 	"CNewSum": CNewSum_Dataset
 }

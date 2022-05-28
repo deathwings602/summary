@@ -67,6 +67,8 @@ def setup_model_and_optimizer(args):
     tokenizer = get_tokenizer(args)
     # get the model
     model = get_model(args)
+    if args.load:
+        bmt.load(model, args.load, strict=True)
     bmt.synchronize()
     # get the optimizer and lr_scheduler
     optimizer = get_optimizer(args, model)
@@ -92,7 +94,7 @@ def prepare_dataset(args, tokenizer, base_path, dataset_name, rank, world_size):
     splits = ['train', 'dev']
     dataset = {}
     for split in splits:
-        dataset[split] = DATASET[dataset_name](base_path, split, rank, world_size, tokenizer, args.max_length)
+        dataset[split] = DATASET[dataset_name](base_path, dataset_name, split, rank, world_size, tokenizer, args.max_length)
     return dataset
 
 
@@ -104,7 +106,7 @@ def finetune(args, tokenizer, model, optimizer, lr_scheduler, dataset):
         "dev": DistributedDataLoader(dataset['dev'], batch_size=args.batch_size, shuffle=False),
     }
 
-    for epoch in range(100):
+    for epoch in range(args.start_epoch, 100):
         model.train()
         for it, data in enumerate(dataloader['train']):
             input_tokens = data["input_tokens"].cuda()

@@ -136,5 +136,6 @@ class BatchInferDataset:
 
 INFER_DATASET = {
 	'LCSTS': LCSTSInferDataset,
+	'LCSTSW': LCSTSInferDataset,
 	'CNewSum': CNewSumInferDataset
 }
