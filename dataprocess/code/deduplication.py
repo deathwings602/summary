@@ -14,7 +14,7 @@ def get_args():
 	parser.add_argument('--data-dir', type=str, default='/home/zhaoxinhao/data2/cpm1/data')
 	parser.add_argument('--dataset', type=str, default='LCSTS')
 	parser.add_argument('--train-file-name', type=str, default='train.jsonl')
-	parser.add_argument('--dev-file-name', type=str, default='dev.jsonl')
+	parser.add_argument('--dev-file-name', type=str, default='valid.jsonl')
 	parser.add_argument('--test-file-name', type=str, default='test_private.jsonl')
 
 	# output
@@ -48,7 +48,8 @@ def main():
 				print(i, rig_tokens)
 			else:
 				if tuple(data['summary']) in train_map:
-					fout.write('---' + train_map[tuple(data['summary'])] + '---' + line)
+					pass
+					# fout.write('---' + train_map[tuple(data['summary'])] + '---' + line)
 				else:
 					fout.write(line)
 
@@ -60,7 +61,8 @@ def main():
 				print(i, rig_tokens)
 			else:
 				if tuple(data['summary']) in train_map:
-					fout.write('---' + train_map[tuple(data['summary'])] + '---' + line)
+					pass
+					# fout.write('---' + train_map[tuple(data['summary'])] + '---' + line)
 				else:
 					fout.write(line)
 
